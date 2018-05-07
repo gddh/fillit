@@ -1,0 +1,7 @@
+*.o
+libft.a
+*.dSYM/
+*.swp
+test
+*gch
+*.a
