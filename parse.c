@@ -6,7 +6,7 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/07 19:16:03 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/08 15:28:15 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/08 15:39:51 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,10 @@ static t_board		read_file(int fd, t_board board, char *possible, size_t i)
 	line = NULL;
 	while ((next = get_next_line(fd, &line)) == 1)
 	{
-		(!line && !ft_memchr(possible, EMPTY, 16))
-			? continue
-			: fillit_exit();
+		if (!line && !ft_memchr(possible, EMPTY, 16))
+			continue ;
+		else if (!line && ft_memchr(possible, EMPTY, 16))
+			fillit_exit();
 		if (ft_strlen(line) != 4 || i >= 4 || board->pieces > 26)
 			fillit_exit();
 		*possible = line;
