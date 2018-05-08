@@ -6,7 +6,7 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/07 19:16:03 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/08 01:10:03 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/08 15:04:53 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,17 @@
 
 void			sub_one(void *final, void *elem, size_t i, int *stop)
 {
-	*(int*)elem += 1;
+	(void)final;
+	(void)stop;
+	(void)i;
+	*(int*)elem -= 1;
 }
 
 static void			*zero_found(void *final, void *elem, size_t i, int *stop)
 {
-	int		c;
-
-	c = *(int*)elem;
-	*stop = c == 0 ? 1 : 0; 
+	(void)final;
+	(void)i;
+	*stop = *(int*)elem == 0 ? 1 : 0; 
 	return (elem)
 }
 
@@ -32,24 +34,23 @@ static void			*zero_found(void *final, void *elem, size_t i, int *stop)
 ** existing data structure
 */
 
-static t_tetrimino	find_blocks(char *mino, t_tetrimino *new, int row, int col)
+static t_tetrimino	find_blocks(char *mino, t_tetrimino *new, int row
+								, int col, int found)
 {
-	int		found;
-
-	found = 0;
 	while (++row < 4)
 	{
 		j = -1;
 		while (++j < 4)
 		{
-			if (mino[row * 4][j] == BLOCK && (
+			if (mino[row * 4][j] == BLOCK && found < 4 && (
 				col > 0 && mino[row * 4][col] == BLOCK ?? 1 : 0
 				|| col < 4 && mino[row * 4][col] == BLOCK ?? 1 : 0 
 				|| row > 0 && mino[row * 4][col] == BLOCK ?? 1 : 0 
 				|| row < 4 && mino[row * 4][col] == BLOCK ?? 1 : 0))
 			{
 				new->x_vec[I_SIZE * found] = i;
-				new->y_vec[I_SIZE * found++] = j;
+				new->y_vec[I_SIZE * found] = j;
+				new->name = 'A' + found++;
 			}
 			else if (mino[i * 4][j] != SPACE)
 				fillit_exit();
@@ -67,7 +68,7 @@ static void		add_tetrimino(t_new board, char *tetrimino)
 	t_tetrimino	new[sizeof(t_tetrimino)];
 	size_t		sizes[2];
 
-	new = find_blocks(tetrimino, &new, 0, -1);
+	new = find_blocks(tetrimino, &new, 0, -1, 0);
 	sizes = { board->count * I_SIZE, sizeof(t_tetrimino) };
 	if (!(board->pieces = resize_buf(board->pieces, &new, sizes)))
 		fillit_exit();
@@ -75,26 +76,22 @@ static void		add_tetrimino(t_new board, char *tetrimino)
 }
 
 /*
-** The description of a Tetriminos must respect the following rules :
-** • Every Tetrimino must exactly fit in a 4 by 4 chars square and all Tetrimino
-**	are separated by an newline each.
-** • Precisely 4 lines of 4 chars, each followed by a new line (a 4x4 square).
-** Your file should contain between 1 and 26 Tetriminos.
+** Read file one line at a time, adding each to a buffer
 */
 
-static t_board		read_file(int fd, t_board board, char *possible)
+static t_board		read_file(int fd, t_board board, char *possible, size_t i)
 {
-	size_t			i;
 	int				next;
 	char			*line;
 	unsigned int	blocks;
 
-	i = 0;
 	line = NULL;
 	while ((next = get_next_line(fd, &line)) == 1)
 	{
-		if (!line)
-			continue();
+		if (!line && ft_memchr(possible, EMPTY, 16 == NULL))
+			continue ;
+		else
+			fillit_exit();
 		if (ft_strlen(line) != 4 || i >= 4 || board->pieces > 26)
 			fillit_exit();
 		*possible = line;
@@ -102,7 +99,7 @@ static t_board		read_file(int fd, t_board board, char *possible)
 		if (i == 4)
 		{
 			add_tetrimino(board, *possible);
-			ft_memset(possible, NULL, 16);
+			ft_memset(possible, EMPTY, 16);
 		}
 		ft_strdel(&line);
 	}
@@ -129,7 +126,8 @@ t_board		*parse_board(char *path)
 		|| !(possible_tetrimino = ft_memalloc(16)))
 		fillit_exit();
 	board->count = 0;
-	board = read_file(fd, board, possible_tetrimino);
+	ft_memset(possible_tetrimino, EMPTY, 16);
+	board = read_file(fd, board, possible_tetrimino, 0);
 	ft_strdel(&possible_tetrimino);
 	return (board);
 }
