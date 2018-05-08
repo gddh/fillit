@@ -6,33 +6,50 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/07 19:16:03 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/07 22:34:29 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/08 01:10:03 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fillit.h"
 
+void			sub_one(void *final, void *elem, size_t i, int *stop)
+{
+	*(int*)elem += 1;
+}
+
+static void			*zero_found(void *final, void *elem, size_t i, int *stop)
+{
+	int		c;
+
+	c = *(int*)elem;
+	*stop = c == 0 ? 1 : 0; 
+	return (elem)
+}
+
 /*
-** add_tetrimino verifies that a potentional tetrimino has 4 cells that all touch
-** each other at least once then calculates each sub_tetrimino's position, adding them to the
+** add_tetrimino verifies that a potentional tetrimino has 4 neighboring cells
+** then calculates each sub_tetrimino's position, adding them to the
 ** existing data structure
 */
 
-int			has_neighbor(t_tetrimino tetrimino, int row, int col)
+static t_tetrimino	find_blocks(char *mino, t_tetrimino *new, int row, int col)
 {
-	// since we know the {x,y}, just check surrounding squares
-}
+	int		found;
 
-t_tetrimino	find_pos(t_tetrimino mino, int i, int j, int neighbor)
-{
-	while (++i < 4)
+	found = 0;
+	while (++row < 4)
 	{
+		j = -1;
 		while (++j < 4)
 		{
-			if (mino[i * 4][j] == BLOCK && has_neighbor(mino, i * 4, j))
+			if (mino[row * 4][j] == BLOCK && (
+				col > 0 && mino[row * 4][col] == BLOCK ?? 1 : 0
+				|| col < 4 && mino[row * 4][col] == BLOCK ?? 1 : 0 
+				|| row > 0 && mino[row * 4][col] == BLOCK ?? 1 : 0 
+				|| row < 4 && mino[row * 4][col] == BLOCK ?? 1 : 0))
 			{
-				board->x_vec[I_SIZE * board->count] = i;
-				board->y_vec[I_SIZE * board->count] = j;
+				new->x_vec[I_SIZE * found] = i;
+				new->y_vec[I_SIZE * found++] = j;
 			}
 			else if (mino[i * 4][j] != SPACE)
 				fillit_exit();
@@ -41,20 +58,18 @@ t_tetrimino	find_pos(t_tetrimino mino, int i, int j, int neighbor)
 	while (!ft_arrfoldl(zero_found, x_vec, 4, I_SIZE))
 		ft_arriterl(sub_one, x_vec, 4, I_SIZE);
 	while (!ft_arrfoldl(zero_found, y_vec, 4, I_SIZE))
-		ft_arriterl(add_one, y_vec, 4, I_SIZE);
+		ft_arriterl(sub_one, y_vec, 4, I_SIZE);
 	return (mino);
 }
 
-void		add_tetrimino(t_board board, char *tetrimino)
+static void		add_tetrimino(t_new board, char *tetrimino)
 {
-	t_tetrimino		new[sizeof(t_tetrimino)];
+	t_tetrimino	new[sizeof(t_tetrimino)];
+	size_t		sizes[2];
 
-	ft_memmset(&(tetrimino.x_vec), EMPTY, I_SIZE * 4);
-	ft_memmset(&(tetrimino.y_vec), EMPTY, I_SIZE * 4);
-	if (!(board->pieces = resize_buf(board->pieces
-			, board->count * I_SIZE
-			, find_pos(new, 0, -1, 0)
-			, sizeof(t_tetrimino))))
+	new = find_blocks(tetrimino, &new, 0, -1);
+	sizes = { board->count * I_SIZE, sizeof(t_tetrimino) };
+	if (!(board->pieces = resize_buf(board->pieces, &new, sizes)))
 		fillit_exit();
 	board->count += 1;
 }
@@ -67,7 +82,7 @@ void		add_tetrimino(t_board board, char *tetrimino)
 ** Your file should contain between 1 and 26 Tetriminos.
 */
 
-t_board		read_file(int fd, t_board board, char *possible)
+static t_board		read_file(int fd, t_board board, char *possible)
 {
 	size_t			i;
 	int				next;
@@ -109,9 +124,9 @@ t_board		*parse_board(char *path)
 	char	*possible;
 
 	if (!path 
-		|| (fd = open(path, O_RDONLY) == -1
+		|| (fd = open(path, O_RDONLY)) == -1
 		|| !(board = ft_memalloc(sizeof(t_board)))
-		|| !(possible_tetrimino = ft_memalloc(16))
+		|| !(possible_tetrimino = ft_memalloc(16)))
 		fillit_exit();
 	board->count = 0;
 	board = read_file(fd, board, possible_tetrimino);
