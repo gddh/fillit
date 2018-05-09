@@ -6,7 +6,7 @@
 /*   By: delin <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 17:06:37 by delin             #+#    #+#             */
-/*   Updated: 2018/05/08 17:46:43 by delin            ###   ########.fr       */
+/*   Updated: 2018/05/09 11:41:33 by delin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,41 @@ int    backtrack(char **board,t_queue *dq, int n)
          }
          y = y + 1;
      }
-     destory_q(&q);
      return (0);
+}
+
+void	fillit(t_board *minos)
+{
+	t_queue	*dq;
+	int 	board_size;
+	char	**board;
+	int		sol_found;
+
+
+	dq = init_queue();
+	board_size = START_SIZE - 1;
+	/*
+	 * Not sure if this is proper way to go to next tetrimino 
+	 * I'm trying to put all of the tetriminos into the deque
+	*/
+	while (minos->count > 0)
+	{
+		enqueue_back(&dq, minos->pieces);
+		minos->pieces + sizeof(t_tetrimino);
+		minos->count--;
+	}
+	sol_found = 0;
+	while (!sol_found)
+	{
+		if (!sol_found)
+		{
+			board_size = board_size + 1;
+			board = init_board(board_size);
+		}
+		sol_found = backtrack(board, dq, board_size);
+		if (sol_found)
+			draw(board, board_size);
+		free_board(board, board_size);
+	}
+	destroy_q(dq);
 }

@@ -6,7 +6,7 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/07 19:16:47 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/08 18:06:05 by delin            ###   ########.fr       */
+/*   Updated: 2018/05/09 11:41:36 by delin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 // empty needs to be something we can compare against easily
 # define EMPTY 60
 # define EMPTY_VEC "0000"
+# define START_SIZE 2
 
 typedef struct		s_tetrimino
 {

@@ -6,7 +6,7 @@
 /*   By: delin <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 16:34:13 by delin             #+#    #+#             */
-/*   Updated: 2018/05/08 16:40:12 by delin            ###   ########.fr       */
+/*   Updated: 2018/05/09 11:41:37 by delin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,21 @@ static void	fill_board(char **board, int n)
 			board[i][j] = '.';
 			j = j + 1;
 		}
+		i = i + 1;
+	}
+}
+
+/*
+** Frees the board that we draw
+*/
+
+void		free_board(char **board, int n)
+{
+	int i = 0;
+
+	while (i < n)
+	{
+		free(board[i]);
 		i = i + 1;
 	}
 }
