@@ -1,29 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   board.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: delin <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2018/05/08 15:19:52 by delin             #+#    #+#             */
-/*   Updated: 2018/05/08 15:20:04 by delin            ###   ########.fr       */
+/*   Created: 2018/05/08 16:33:50 by delin             #+#    #+#             */
+/*   Updated: 2018/05/08 16:35:20 by delin            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fillit.h"
+#ifndef BOARD_H
+# define BOARD_H
 
-/*
-** Your executable must take only one parameter, a file which contains a list of
-** Tetriminos to assemble.
-** If the number of parameters sent to your executable is not
-** 1, your program must display its usage and exit properly.
-*/
+# include <stdio.h>
+# include <stdlib.h>
+# include "libft/libft.h"
 
-int		main(int argc, char **argv)
-{
-	if (argc == 2)
-		ft_putendl(fillit(parse_board(argv[1])));
-	else
-		fillit_print_usage();
-	return (0);
-}
+void	draw(char **board, int n);
+char	**init_board(int n);
+
+#endif
