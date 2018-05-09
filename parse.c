@@ -6,11 +6,10 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/07 19:16:03 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/08 15:04:53 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/09 16:02:34 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fillit.h"
 
 void			sub_one(void *final, void *elem, size_t i, int *stop)
 {
@@ -34,6 +33,7 @@ static void			*zero_found(void *final, void *elem, size_t i, int *stop)
 ** existing data structure
 */
 
+// only 4 params allowed
 static t_tetrimino	find_blocks(char *mino, t_tetrimino *new, int row
 								, int col, int found)
 {
@@ -42,6 +42,7 @@ static t_tetrimino	find_blocks(char *mino, t_tetrimino *new, int row
 		j = -1;
 		while (++j < 4)
 		{
+			// use queue instead, chain blocks together instead - disconeected pairs 
 			if (mino[row * 4][j] == BLOCK && found < 4 && (
 				col > 0 && mino[row * 4][col] == BLOCK ?? 1 : 0
 				|| col < 4 && mino[row * 4][col] == BLOCK ?? 1 : 0 
@@ -69,8 +70,10 @@ static void		add_tetrimino(t_new board, char *tetrimino)
 	size_t		sizes[2];
 
 	new = find_blocks(tetrimino, &new, 0, -1, 0);
-	sizes = { board->count * I_SIZE, sizeof(t_tetrimino) };
-	if (!(board->pieces = resize_buf(board->pieces, &new, sizes)))
+	// realloc board and concat new block
+	// https://github.com/Xxdzs/Libft/blob/c319bd1066c22b6f57c09e66675d53f1edf5de27/src/ft_realloc.c
+	// https://github.com/okovko/42-ftmacros
+	if (!(board->pieces = ft_strcat(ft_realloc())))
 		fillit_exit();
 	board->count += 1;
 }
@@ -94,6 +97,7 @@ static t_board		read_file(int fd, t_board board, char *possible, size_t i)
 			fillit_exit();
 		if (ft_strlen(line) != 4 || i >= 4 || board->pieces > 26)
 			fillit_exit();
+		// need different ptr here, use memcpy
 		*possible = line;
 		possible += 4;
 		if (i == 4)
