@@ -6,10 +6,13 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/07 19:16:03 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/09 16:02:34 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/09 18:33:34 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+/*
+** helper function for the arr iter, mutate arr by subtracting 1 from each elem
+*/
 
 void			sub_one(void *final, void *elem, size_t i, int *stop)
 {
@@ -19,12 +22,30 @@ void			sub_one(void *final, void *elem, size_t i, int *stop)
 	*(int*)elem -= 1;
 }
 
+/*
+** helper function for the reduce function, stops and returns if a 0 is found
+*/
+
 static void			*zero_found(void *final, void *elem, size_t i, int *stop)
 {
 	(void)final;
 	(void)i;
-	*stop = *(int*)elem == 0 ? 1 : 0; 
+	*stop = *(int*)elem == 0 ? 1 : 0;
 	return (elem)
+}
+
+/*
+** Given a buffer containing a possible tetrimino and the {x,y} coordinates
+** of a block, return the total number of blocks neighboring it above,
+** below, and to the left and right
+*/
+
+static int				has_neighbor(char *mino, int col, int row)
+{
+	return ((col > 0 && mino[row * 4][col - 1] == '#' ? 1 : 0)
+		+ (col < 4 && mino[row * 4][col + 1] == '#' ? 1 : 0)
+		+ (row > 0 && mino[row * 4 - 1][col] == '#' ? 1 : 0)
+		+ (row < 4 && mino[row * 4 + 1][col] == '#' ? 1 : 0));
 }
 
 /*
@@ -33,53 +54,62 @@ static void			*zero_found(void *final, void *elem, size_t i, int *stop)
 ** existing data structure
 */
 
-// only 4 params allowed
-static t_tetrimino	find_blocks(char *mino, t_tetrimino *new, int row
-								, int col, int found)
+static t_tetrimino	find_blocks(char *mino, t_tetrimino *new, int found)
 {
-	while (++row < 4)
+	int		i;
+	int		j;
+	int		edges;
+
+	i = -1;
+	edges = 0;
+	while (++i < 4)
 	{
 		j = -1;
 		while (++j < 4)
 		{
-			// use queue instead, chain blocks together instead - disconeected pairs 
-			if (mino[row * 4][j] == BLOCK && found < 4 && (
-				col > 0 && mino[row * 4][col] == BLOCK ?? 1 : 0
-				|| col < 4 && mino[row * 4][col] == BLOCK ?? 1 : 0 
-				|| row > 0 && mino[row * 4][col] == BLOCK ?? 1 : 0 
-				|| row < 4 && mino[row * 4][col] == BLOCK ?? 1 : 0))
+			if (mino[i * 4][j] == '#' && found < 4 && has_neighbor(mino, i, j);
 			{
-				new->x_vec[I_SIZE * found] = i;
-				new->y_vec[I_SIZE * found] = j;
+				new->x_vec[found * I_SIZE] = i;
+				new->y_vec[found * I_SIZE] = j;
 				new->name = 'A' + found++;
+				edges += has_neighbor(mino, i, j);
 			}
-			else if (mino[i * 4][j] != SPACE)
+			else if (mino[i * 4][j] != '.')
 				fillit_exit();
 		}
 	}
-	while (!ft_arrfoldl(zero_found, x_vec, 4, I_SIZE))
-		ft_arriterl(sub_one, x_vec, 4, I_SIZE);
-	while (!ft_arrfoldl(zero_found, y_vec, 4, I_SIZE))
-		ft_arriterl(sub_one, y_vec, 4, I_SIZE);
+	if (edges < 6)
+		fillit_exit();
 	return (mino);
 }
 
+/*
+** TODO: add tetrimino to dequeue instead of buffer
+*/
+
 static void		add_tetrimino(t_new board, char *tetrimino)
 {
-	t_tetrimino	new[sizeof(t_tetrimino)];
-	size_t		sizes[2];
+	t_tetrimino	new_mino[sizeof(t_tetrimino)];
+	size_t		new_size;
 
-	new = find_blocks(tetrimino, &new, 0, -1, 0);
-	// realloc board and concat new block
-	// https://github.com/Xxdzs/Libft/blob/c319bd1066c22b6f57c09e66675d53f1edf5de27/src/ft_realloc.c
-	// https://github.com/okovko/42-ftmacros
-	if (!(board->pieces = ft_strcat(ft_realloc())))
+	new.edges = 0;
+	new = find_blocks(tetrimino, &new, 0);
+	while (!ft_arrfoldl(zero_found, new_mino.x_vec, 4, I_SIZE))
+		ft_arriterl(sub_one, new_mino.x_vec, 4, I_SIZE);
+	while (!ft_arrfoldl(zero_found, new_mino.y_vec, 4, I_SIZE))
+		ft_arriterl(sub_one, new_mino.y_vec, 4, I_SIZE);
+	if (!(tmp = ft_realloc(board->pieces, BLOCK_SIZE * board->count)))
 		fillit_exit();
+	board->pieces = ft_strcat(tmp, new_mino);
 	board->count += 1;
 }
 
 /*
-** Read file one line at a time, adding each to a buffer
+** Read file one line at a time, adding each to a buffer.
+** Checks that each block is 4 lines, containing 4 chars, that each newline
+** is preceded by 4 blocks, and the maximum number of tetrimino pieces is
+** less than 26
+** Returns a valid board or calls fillit_exit if invariants not met.
 */
 
 static t_board		read_file(int fd, t_board board, char *possible, size_t i)
@@ -91,14 +121,13 @@ static t_board		read_file(int fd, t_board board, char *possible, size_t i)
 	line = NULL;
 	while ((next = get_next_line(fd, &line)) == 1)
 	{
-		if (!line && ft_memchr(possible, EMPTY, 16 == NULL))
+		if (!line && !ft_memchr(possible, EMPTY, 16))
 			continue ;
-		else
+		else if (!line && ft_memchr(possible, EMPTY, 16))
 			fillit_exit();
 		if (ft_strlen(line) != 4 || i >= 4 || board->pieces > 26)
 			fillit_exit();
-		// need different ptr here, use memcpy
-		*possible = line;
+		ft_memcpy(possible, line, 4);
 		possible += 4;
 		if (i == 4)
 		{
@@ -114,24 +143,22 @@ static t_board		read_file(int fd, t_board board, char *possible, size_t i)
 
 /*
 ** Initializes the buffers needes to store tetrimino block coordinates,
-** opens the given file path, then calls read_file to parse tetriminos 
-** returns a valid board or calls fillit_exit() 
+** opens the given file path, then calls read_file to parse tetriminos
+** returns a valid board or calls fillit_exit()
 */
 
 t_board		*parse_board(char *path)
 {
 	int		fd;
 	t_board	*board;
-	char	*possible;
+	char	possible[16];
 
-	if (!path 
+	if (!path
 		|| (fd = open(path, O_RDONLY)) == -1
-		|| !(board = ft_memalloc(sizeof(t_board)))
-		|| !(possible_tetrimino = ft_memalloc(16)))
+		|| !(board = ft_memalloc(sizeof(t_board))))
 		fillit_exit();
+	ft_memset(possible, EMPTY, 16);
 	board->count = 0;
-	ft_memset(possible_tetrimino, EMPTY, 16);
 	board = read_file(fd, board, possible_tetrimino, 0);
-	ft_strdel(&possible_tetrimino);
 	return (board);
 }
