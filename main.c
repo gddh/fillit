@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: delin <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 15:19:52 by delin             #+#    #+#             */
-/*   Updated: 2018/05/08 15:20:04 by delin            ###   ########.fr       */
+/*   Updated: 2018/05/10 21:19:42 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,9 @@
 int		main(int argc, char **argv)
 {
 	if (argc == 2)
-		ft_putendl(fillit(parse_board(argv[1])));
+		fillit(parse_board(argv[1]));
 	else
 		fillit_print_usage();
+	ft_putchar('\n');
 	return (0);
 }

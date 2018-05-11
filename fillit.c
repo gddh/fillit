@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   fillit.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: delin <marvin@42.fr>                       +#+  +:+       +#+        */
+/*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 17:06:37 by delin             #+#    #+#             */
-/*   Updated: 2018/05/09 11:41:33 by delin            ###   ########.fr       */
+/*   Updated: 2018/05/10 23:54:21 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fillit.h"
-#include "queue.h"
+#include "libft.h"
 
 /*
 ** Checks if the tetrimino can be placed at the x and y such that
@@ -19,21 +18,22 @@
 ** Note the tetrimino's top left corner can be empty 
 */
 
-int		is_safe(char **board, t_tetrimino tetri, int N, int x, int y)
+int		is_safe(char **board, t_tetrimino tetri, int N, t_coords coords)
 {
-	int i;
+	int		i;
+	int		x_i;
+	int		y_i;
 
-	i = 0;
-    while(i < 4)
+	i = -1;
+    while (++i < 4)
     {
-        x_i = tetri->x[i];
-        y_i = tetri->y[i];
-        if (x + x_i < N && y + y_i < N)    
+        x_i = tetri->x_vec[i];
+        y_i = tetri->y_vec[i];
+        if (coords.x + x_i < N && coords.y + y_i < N)    
         {
-            if (board[y + y_i][x + x_i] != '.')
+            if (board[coords.y + y_i][coords.x + x_i] != '.')
                 return (0);
         }
-		i = i + 1;
     }
     return (1);
 }
@@ -48,15 +48,16 @@ int		is_safe(char **board, t_tetrimino tetri, int N, int x, int y)
 
 void		draw_tetrimino(char **board, t_tetrimino tetri, int x, int y)
 {
-	int i;
+	int 	i;
+	int		x_i;
+	int		y_i;
 
-	i = 0;
-	while (i < 4)
+	i = -1;
+	while (++i < 4)
 	{
-		x_i = tetri->x[i];
-		y_i = tetri->y[i];
+		x_i = tetri->x_vec[i];
+		y_i = tetri->y_vec[i];
 		board[y + y_i][x + x_i] = tetri->id;
-		i = i + 1;
 	}
 }
 
@@ -68,15 +69,16 @@ void		draw_tetrimino(char **board, t_tetrimino tetri, int x, int y)
 
 void	remove_tetrimino(char **board, t_tetrimino tetri, int x, int y)
 {
-	int i;
+	int 	i;
+	int		x_i;
+	int		y_i;
 
-	i = 0;
-	while (i < 4)
+	i = -1;
+	while (++i < 4)
 	{
-		x_i = tetri->x[i];
-		y_i = tetri->y[i];
+		x_i = tetri->x_vec[i];
+		y_i = tetri->y_vec[i];
 		board[y + y_i][x + x_i] = '.';
-		i = i + 1;
 	}
 }
 
@@ -89,30 +91,27 @@ void	remove_tetrimino(char **board, t_tetrimino tetri, int x, int y)
 
 int    backtrack(char **board,t_queue *dq, int n)
 {
-	int x;
-	int y;
+	t_coords	coords;
     t_tetrimino *cur_tetri;
 
 	if (is_empty(dq))
         return (1);     
-     y = 0;
-     while (y < n)
+     coords = { .x  = -1, .y = -1 };
+     while (++coords.y < n)
      {
-         x = 0;
-         while (x < n)
+         coords.x = -1;
+         while (++coords.x < n)
          {
-             if (is_safe(board, peek(dq), x, y, n))
+             if (is_safe(board, ft_lstpeek(dq), n, coords))
              {
-                 cur_tetri = dequeue(&dq);
-                 place_tetrimino(board, cur_tetri, x, y);
+                 cur_tetri = ft_lstpoptail(&dq);
+                 place_tetrimino(board, cur_tetri, coords.x, coords.y);
                  if (backtrack(board, dq, n))
                      return (1);
-                remove_tetrimino(board, cur_tetri, x, y);
-                enqueue_front(&dq, cur_tetri);
+                remove_tetrimino(board, cur_tetri, coords.x, coords.y);
+                ft_lstpushhead(&dq, cur_tetri);
              }
-             x = x + 1;
          }
-         y = y + 1;
      }
      return (0);
 }
@@ -120,35 +119,21 @@ int    backtrack(char **board,t_queue *dq, int n)
 void	fillit(t_board *minos)
 {
 	t_queue	*dq;
-	int 	board_size;
+	int 	size;
 	char	**board;
 	int		sol_found;
 
 
-	dq = init_queue();
-	board_size = START_SIZE - 1;
-	/*
-	 * Not sure if this is proper way to go to next tetrimino 
-	 * I'm trying to put all of the tetriminos into the deque
-	*/
-	while (minos->count > 0)
-	{
-		enqueue_back(&dq, minos->pieces);
-		minos->pieces + sizeof(t_tetrimino);
-		minos->count--;
-	}
 	sol_found = 0;
+	size = START_SIZE - 1;
 	while (!sol_found)
 	{
-		if (!sol_found)
-		{
-			board_size = board_size + 1;
-			board = init_board(board_size);
-		}
-		sol_found = backtrack(board, dq, board_size);
+		size = size + 1;
+		board = init_board(size);
+		sol_found = backtrack(board, dq, size);
 		if (sol_found)
-			draw(board, board_size);
-		free_board(board, board_size);
+			draw(board, size);
+		free_board(board, size);
 	}
 	destroy_q(dq);
 }

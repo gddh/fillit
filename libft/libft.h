@@ -6,7 +6,7 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/04/16 12:34:43 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/07 17:52:43 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/10 20:31:39 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ void					*ft_memmove(void *dst, const void *src, size_t len);
 void					*ft_memchr(const void *s, int c, size_t n);
 int						ft_memcmp(const void *s1, const void *s2, size_t n);
 void					*ft_memalloc(size_t size);
+void					*ft_realloc(void *ptr, size_t size);
 void					ft_memdel(void **ap);
 void					*ft_fast_memcpy(void *dst, const void *src, size_t n);
 int						ft_fast_memcmp(const void *s1
@@ -150,18 +151,17 @@ t_list					*ft_lstfind(t_list *begin_list
 									, int (*cmp)());
 t_list					*ft_lstlast(t_list *begin_list);
 void					ft_lstmerge(t_list **begin_list1, t_list *begin_list2);
-void					ft_lstpushback(t_list **begin_list
-										, void *data
-										, size_t size);
-void					ft_lstpushfront(t_list **begin_list
-										, void *data
-										, size_t size);
+t_list					*ft_lstpushback(t_list **begin_list, t_list *node);
+t_list					*ft_lstpushfront(t_list **begin_list, t_list *node);
 t_list					*ft_lstpushparams(int ac, char **av);
 t_list					*ft_lstcndremove(t_list **begin_list
 										, void *data_ref
 										, int (*cmp)());
 void					ft_lstreverse(t_list **begin_list);
 int						ft_lstsize(t_list *begin_list);
+t_list					ft_lstpeek(t_list *begin_list);
+t_list					ft_lsthead(t_list *begin_list);
+t_list					ft_lsttail(t_list *begin_list);
 
 /*
 ** List functions
@@ -199,9 +199,9 @@ void					*ft_arriter(void (*f)(void *elem, size_t i)
 										, size_t step
 										, void *arr);
 void					*ft_arrfoldl(void *(*f)(void *acc, size_t i)
-										, void *arr
 										, size_t len
-										, size_t step);
+										, size_t step
+										, void *arr);
 
 /*
 ** implement once able to use stdarg.h
