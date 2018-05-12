@@ -1,15 +1,18 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -fsanitize=address,undefined
 CFLAGS += -I includes/
-FILES = queue helper_queue main board fillit parse 
+FILES = main fillit parse helpers 
 OBJS = $(addsuffix .o, $(FILES)) 
 ODIR = objs/
 TARGET = fillit
 
-all : $(TARGET)
+all : libft $(TARGET)
+
+libft : 
+	make -C libft
 
 $(TARGET) : $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+	$(CC) $(CFLAGS) libft/libft.a -o $@ $(OBJS)
 
 $(ODIR)%.o : %.c | $(ODIR)
 	$(CC) -c $(CFLAGS) $< -o $@
