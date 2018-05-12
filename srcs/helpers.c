@@ -37,7 +37,7 @@ void			sub_one(void *elem, size_t i, int *stop)
 ** helper function for parsing input, stops and returns if a 0 is found
 */
 
-static void			*zero_found(void *final, void *elem, size_t i, int *stop)
+void			*zero_found(void *final, void *elem, size_t i, int *stop)
 {
 	(void)final;
 	(void)i;
@@ -65,6 +65,7 @@ void				draw(char **board, int n)
 		ft_putchar('\n');
 		y = y + 1;
 	}
+	ft_putchar('\n');
 }
 
 /*

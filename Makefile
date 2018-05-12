@@ -1,33 +1,39 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror -fsanitize=address,undefined
-CFLAGS += -I includes/
-FILES = main fillit parse helpers 
-OBJS = $(addsuffix .o, $(FILES)) 
+CFLAGS = -Wall -Wextra -Werror -fsanitize=address
+CFLAGS += -I includes/ 
+FILES = main parse helpers fillit
+SDIR = srcs/
 ODIR = objs/
-TARGET = fillit
+OBJS = $(addprefix $(ODIR), $(addsuffix .o, $(FILES)))
+TARGET = test
+LIBFT = libft/libft.a
+LDFLAGS = -L libft/ -lft
 
-all : libft $(TARGET)
+all : $(TARGET)
 
-libft : 
-	make -C libft
+$(TARGET) : $(OBJS) $(LIBFT)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS) 
 
-$(TARGET) : $(OBJS)
-	$(CC) $(CFLAGS) libft/libft.a -o $@ $(OBJS)
-
-$(ODIR)%.o : %.c | $(ODIR)
+$(ODIR)%.o : $(SDIR)%.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(ODIR) :
+$(OBJS) : $(ODIR)
+
+$(ODIR):
 	mkdir -p $@
 
-.PHONY : all clean fclean re
+$(LIBFT) : 
+	make -C libft
+
+.PHONY : clean fclean re all
 
 clean :
-	/bin/rm $(OBJS)
+	rm $(OBJS)
+	make -C libft clean
 
 fclean : 
-	/bin/rm $(OBJS)
-	/bin/rm $(TARGET)
+	rm -rf $(ODIR)
+	rm $(TARGET)
+	make -C libft fclean
 
-re : 
-	fclean all
+re : fclean all

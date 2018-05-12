@@ -6,14 +6,14 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/07 19:16:47 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/10 23:54:50 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/11 23:46:17 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FILLIT_H
 # define FILLIT_H
 
-# include "libft/libft.h"
+# include "../libft/libft.h"
 
 # define EMPTY 60
 # define EMPTY_VEC "0000"
@@ -49,6 +49,8 @@ void				fillit(t_board *minos);
 */
 
 void				sub_one(void *elem, size_t i, int *stop);
+void				fillit_exit(void);
+void				*zero_found(void *final, void *elem, size_t i, int *stop);
 void				draw(char **board, int n);
 char				**init_board(int n);
 
@@ -56,5 +58,5 @@ char				**init_board(int n);
 ** parse.c
 */
 
-t_board		*parse_board(char *path);
+t_board				*parse_board(char *path);
 #endif
