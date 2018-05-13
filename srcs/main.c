@@ -6,11 +6,11 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 15:19:52 by delin             #+#    #+#             */
-/*   Updated: 2018/05/11 23:31:28 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/12 16:01:11 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fillit.h"
+#include "../includes/fillit.h"
 
 void	fillit_print_usage(void)
 {

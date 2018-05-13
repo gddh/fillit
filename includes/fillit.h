@@ -6,13 +6,14 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/07 19:16:47 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/11 23:46:17 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/12 16:33:54 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FILLIT_H
 # define FILLIT_H
 
+# include <fcntl.h>
 # include "../libft/libft.h"
 
 # define EMPTY 60
@@ -34,7 +35,7 @@ typedef struct		s_tetrimino
 
 typedef struct		s_board
 {
-	t_list			pieces;
+	t_list			*pieces;
 	unsigned int	count;
 }					t_board;
 
@@ -49,7 +50,7 @@ void				fillit(t_board *minos);
 */
 
 void				sub_one(void *elem, size_t i, int *stop);
-void				fillit_exit(void);
+void				fillit_exit(void) __attribute__ ((noreturn));
 void				*zero_found(void *final, void *elem, size_t i, int *stop);
 void				draw(char **board, int n);
 char				**init_board(int n);

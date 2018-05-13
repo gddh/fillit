@@ -6,9 +6,11 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/07 19:16:03 by tmatthew          #+#    #+#             */
-/*   Updated: 2018/05/10 21:05:08 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/12 16:48:30 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+#include "../includes/fillit.h"
 
 /*
 ** Given a buffer containing a possible tetrimino and the {x,y} coordinates
@@ -18,10 +20,10 @@
 
 static int				has_neighbor(char *mino, int col, int row)
 {
-	return ((col > 0 && mino[row * 4][col - 1] == '#' ? 1 : 0)
-		+ (col < 4 && mino[row * 4][col + 1] == '#' ? 1 : 0)
-		+ (row > 0 && mino[row * 4 - 1][col] == '#' ? 1 : 0)
-		+ (row < 4 && mino[row * 4 + 1][col] == '#' ? 1 : 0));
+	return ((col > 0 && mino[(row * 4) + (col - 1)] == '#' ? 1 : 0)
+		+ (col < 4 && mino[(row * 4) + (col + 1)] == '#' ? 1 : 0)
+		+ (row > 0 && mino[(row * 4 - 1) + (col)] == '#' ? 1 : 0)
+		+ (row < 4 && mino[(row * 4 + 1) + (col)] == '#' ? 1 : 0));
 }
 
 /*
@@ -44,15 +46,15 @@ static void	find_blocks(char *mino, t_tetrimino *new, int found)
 		j = -1;
 		while (++j < 4)
 		{
-			if (mino[i * 4][j] == '#' && found < 4
+			if (mino[i * 4 + j] == '#' && found < 4
 				&& (neighbors = has_neighbor(mino, i, j)))
 			{
 				new->x_vec[found * I_SIZE] = i;
 				new->y_vec[found * I_SIZE] = j;
-				new->name = 'A' + found++;
+				new->id = 'A' + found++;
 				edges += neighbors;
 			}
-			else if (mino[i * 4][j] != '.' || (i == 3 && j == 3 && edges < 6))
+			else if (mino[i * 4 + j] != '.' || (i == 3 && j == 3 && edges < 6))
 				fillit_exit();
 		}
 	}
@@ -64,18 +66,19 @@ static void	find_blocks(char *mino, t_tetrimino *new, int found)
 ** after shifting up and left.
 */
 
-static void		add_tetrimino(t_board board, char *tetrimino)
+static void		add_tetrimino(t_board *board, char *tetrimino)
 {
 	t_tetrimino	new;
-	char		*tmp;
+	t_list		*tmp;
 
 	find_blocks(tetrimino, &new, 0);
 	while (!ft_arrfoldl(zero_found, 4, I_SIZE, new.x_vec))
-		ft_arriterl(sub_one, new.x_vec, 4, I_SIZE);
+		ft_arriterl(sub_one, 4, I_SIZE, new.x_vec);
 	while (!ft_arrfoldl(zero_found, 4, I_SIZE, new.y_vec))
-		ft_arriterl(sub_one, new.y_vec, 4, I_SIZE);
-	if (!(ft_lstadd(&(board->pieces), ft_lstnew(&new, sizeof(t_tetrimino)))))
+		ft_arriterl(sub_one, 4, I_SIZE, new.y_vec);
+	if (!(tmp = ft_lstnew(&new, sizeof(t_tetrimino))))
 		fillit_exit();
+	ft_lstpushback(&(board->pieces), tmp);
 	board->count += 1;
 }
 
@@ -87,11 +90,10 @@ static void		add_tetrimino(t_board board, char *tetrimino)
 ** Returns a valid board or calls fillit_exit if invariants not met.
 */
 
-static t_board		read_file(int fd, t_board board, char *possible, size_t i)
+static t_board		*read_file(int fd, t_board *board, char *possible, size_t i)
 {
 	int				next;
 	char			*line;
-	unsigned int	blocks;
 
 	line = NULL;
 	while ((next = get_next_line(fd, &line)) == 1)
@@ -105,7 +107,7 @@ static t_board		read_file(int fd, t_board board, char *possible, size_t i)
 		possible += 4;
 		if (i == 4)
 		{
-			add_tetrimino(board, *possible);
+			add_tetrimino(board, possible);
 			ft_memset(possible, EMPTY, 16);
 		}
 		ft_strdel(&line);
@@ -127,13 +129,19 @@ t_board		*parse_board(char *path)
 	t_board	*board;
 	char	possible_tetrimino[16];
 
-	if (!path
-		|| (fd = open(path, O_RDONLY)) == -1
-		|| !(board = ft_memalloc(sizeof(t_board)))
-		|| !(board->pieces = ft_memalloc(sizeof(t_list*))))
+	if (!(path
+		&& (fd = open(path, O_RDONLY)) == -1
+		&& !(board = ft_memalloc(sizeof(t_board)))
+		&& !(board->pieces = ft_memalloc(sizeof(t_list*)))))
 		fillit_exit();
 	ft_memset(possible_tetrimino, EMPTY, 16);
 	board->count = 0;
 	board = read_file(fd, board, possible_tetrimino, 0);
 	return (board);
 }
+
+// void (void *, size_t, int *) 
+// void (void *, unsigned long, int *)
+// to parameter of type
+// void *(*)(void *, size_t, int *)
+// void *(*)(void *, unsigned long, int *)

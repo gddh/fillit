@@ -6,11 +6,11 @@
 /*   By: tmatthew <tmatthew@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/05/08 17:06:37 by delin             #+#    #+#             */
-/*   Updated: 2018/05/10 23:54:21 by tmatthew         ###   ########.fr       */
+/*   Updated: 2018/05/12 16:01:22 by tmatthew         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../includes/fillit.h"
 
 /*
 ** Checks if the tetrimino can be placed at the x and y such that

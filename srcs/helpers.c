@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "fillit.h"
+#include "../includes/fillit.h"
 
 /*
 ** if any errors occur, we should print `error` to stdout and exit the program
@@ -26,11 +26,12 @@ void			fillit_exit(void)
 ** helper function for parsing input, mutate arr by subtracting 1 from each elem
 */
 
-void			sub_one(void *elem, size_t i, int *stop)
+void			*sub_one(void *elem, size_t i, int *stop)
 {
 	(void)stop;
 	(void)i;
 	*(int*)elem -= 1;
+	return (elem);
 }
 
 /*
